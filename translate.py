@@ -35,6 +35,18 @@ def actionTranslation(price, quantity):
         return "sell"
     return "buy"
 
+def datasourceTranslation(action):
+    if action == "fee":
+        return "MANUAL"
+    else:
+        return "YAHOO"
+
+def codeFeeTranslation(code, action, date):
+    if action == "fee":
+        return code + " Fee/Loss - " + date
+    else:
+        return code
+
 def feeTranslation(action, price):
     if action == "fee":
         return abs(price)
@@ -84,6 +96,12 @@ k_new.loc[:, 'Code'] = k_new['Code'].apply(codeTranslation)
 # converting the transaction type to actions: buy, sell, fee
 k_new.loc[:, 'Action'] = k_new.apply(lambda x: actionTranslation(x['Price'],x['Quantity']), axis=1)
 
+# converting the transaction type to actions: buy, sell, fee
+k_new.loc[:, 'DataSource'] = k_new['Action'].apply(datasourceTranslation)
+
+# converting the transaction type to actions: buy, sell, fee
+k_new.loc[:, 'Code'] = k_new.apply(lambda x: codeFeeTranslation(x['Code'],x['Action'],x["Date"]), axis=1)
+
 # converting the price to the fee if it is a fee ?
 k_new.loc[:, 'Fee'] = k_new.apply(lambda x: feeTranslation(x['Action'],x['Price']), axis=1)
 
@@ -95,4 +113,4 @@ k_new.loc[:, 'Quantity'] = k_new['Quantity'].apply(quantityTranslation)
 
 #print(k_raw.head(20))
 #print(temp)
-k_new.to_csv('out.csv', index=False)
+k_new.to_csv('./out/out.csv', index=False)
